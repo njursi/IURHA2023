@@ -1,7 +1,4 @@
 # IURHA2023 
-<p align="center">
-  <img src="[http://some_place.com/image.png](https://github.com/njursi/IURHA2023/assets/126329742/e6e3a3b7-2d6f-46c2-ab51-0b1bf242deb0)" />
-</p>
 ![image](https://github.com/njursi/IURHA2023/assets/126329742/e6e3a3b7-2d6f-46c2-ab51-0b1bf242deb0)
 
 
