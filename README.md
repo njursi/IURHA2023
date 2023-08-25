@@ -42,7 +42,7 @@
 #### The process of data preprocessing is shown in the figure:
 ![image](https://github.com/njursi/IURHA2023/assets/126329742/fd4bf0af-84d6-4202-b6b0-572aa6fef761)
 ### For the fragments within 0~2 seconds, the display is as follows：
+![image](https://github.com/njursi/IURHA2023/assets/126329742/e9f1b318-a797-4014-9514-b873187a5947)
 
-![image](https:github.com/njursi/IURHA2023/assets/126329742/fe6536a4-902d-43ab-a32a-5d46bcb569c4)
 The iterative upgrade version will be named after IURHA2024, 2025, etc
 
