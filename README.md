@@ -1,10 +1,10 @@
-#### IURHA2023
+# IURHA2023
 Datasets for Human Action or Identity Recognition via IR-UWB Radar
-### This dataset will be continuously improved based on reader feedback, and valuable comments are welcome
-## Google Drive backup link：https://drive.google.com/drive/folders/1YBePlVu4GDjYEUfPx38MR_RACepbmU4W?usp=drive_link
+## This dataset will be continuously improved based on reader feedback, and valuable comments are welcome
+#### Google Drive backup link：https://drive.google.com/drive/folders/1YBePlVu4GDjYEUfPx38MR_RACepbmU4W?usp=drive_link
 ![image](https://user-images.githubusercontent.com/126329742/231448369-f7edb072-d51b-44fd-828e-737bb0c0d1df.png)
 
-## Action labels and details are shown below：
+#### Action labels and details are shown below：
 
 | Num | Action Name        | Description                         |
 |-----|--------------------|-------------------------------------|
@@ -29,7 +29,6 @@ Datasets for Human Action or Identity Recognition via IR-UWB Radar
 | 19  | Kicking            | Kick forward or sideways            |
 | 20  | Pacing             | Walking back and forth              |
 
-## The process of data preprocessing is shown in the figure:
-![image](https://github.com/njursi/IURHA2023/assets/126329742/1106f065-bb62-4599-b4b1-805c6581e1b6)
-
+#### The process of data preprocessing is shown in the figure:
+![image](https://github.com/njursi/IURHA2023/assets/126329742/fd4bf0af-84d6-4202-b6b0-572aa6fef761)
 
