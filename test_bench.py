@@ -2,6 +2,7 @@ import os
 import json
 import argparse
 import sys
+
 import torch
 from torchvision import transforms
 import numpy as np
@@ -15,6 +16,7 @@ from my_dataset import MyDataSet
 from model import swin_tiny_patch4_window7_224 as create_model
 from model import MLP
 from sklearn.metrics import roc_curve, auc
+from sklearn.metrics import precision_recall_curve, average_precision_score
 from itertools import cycle
 
 
@@ -27,6 +29,7 @@ class CombinedModel(torch.nn.Module):
     def forward(self, x):
         _, x = self.model(x)
         return self.mlp(x)
+
 
 def plot_multiclass_pr(all_labels, all_scores, num_classes):
     """
@@ -62,6 +65,7 @@ def plot_multiclass_pr(all_labels, all_scores, num_classes):
     plt.legend(loc="upper right")
     plt.grid(True)
     plt.show()
+
 
 def plot_multiclass_roc(all_labels, all_scores, num_classes):
     """
@@ -135,6 +139,42 @@ def compute_macro_avg_roc_auc(all_labels, all_scores, num_classes):
     macro_auc = auc(all_fpr, mean_tpr)
 
     return all_fpr, mean_tpr, macro_auc
+
+def compute_macro_avg_pr_curve(all_labels, all_scores, num_classes):
+    """
+    Compute Precision and Recall for multiclass classification.
+
+    Args:
+        all_labels: ground truth labels.
+        all_scores: predicted scores for each class.
+        num_classes: total number of classes.
+
+    Returns:
+        precision: precision values for each class.
+        recall: recall values for each class.
+        avg_precision: average precision values for each class.
+        macro_avg_precision: macro-average precision value.
+    """
+    precision = dict()
+    recall = dict()
+    avg_precision = dict()
+
+    all_labels_onehot = np.eye(num_classes)[all_labels]
+
+    for i in range(num_classes):
+        precision[i], recall[i], _ = precision_recall_curve(all_labels_onehot[:, i], np.array(all_scores)[:, i])
+        avg_precision[i] = average_precision_score(all_labels_onehot[:, i], np.array(all_scores)[:, i])
+
+    # Compute macro-average PR curve
+    all_recall = np.unique(np.concatenate([recall[i] for i in range(num_classes)]))
+    mean_precision = np.zeros_like(all_recall)
+    for i in range(num_classes):
+        mean_precision += np.interp(all_recall, np.flip(recall[i]), np.flip(precision[i]))
+    mean_precision /= num_classes
+
+    macro_avg_precision = average_precision_score(all_labels_onehot, np.array(all_scores))
+
+    return all_recall, mean_precision, macro_avg_precision
 
 
 class ConfusionMatrix(object):
@@ -310,6 +350,26 @@ def plot_and_save_roc_curve(all_fprs, all_mean_tprs, all_macro_aucs, all_folders
     plt.show()
 
 
+def plot_and_save_pr_curve(all_recalls, all_mean_precisions, all_macro_avg_precisions, all_folders, save_path):
+    plt.figure(figsize=(10, 10))
+    colors = cm.tab20(np.linspace(0, 1, min(len(all_folders), 20)))
+
+    for i, color in enumerate(colors):
+        plt.plot(all_recalls[i], all_mean_precisions[i], color=color, lw=2,
+                 label='{0} (AP = {1:0.2f})'.format(all_folders[i], all_macro_avg_precisions[i]))
+
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('Recall', fontsize=18)
+    plt.ylabel('Precision', fontsize=18)
+    plt.xticks(fontsize=16)
+    plt.yticks(fontsize=16)
+    plt.title('Macro-Average Precision-Recall Curve for Identity Recognition through Each Action', fontsize=18)
+    plt.legend(loc="upper right", fontsize=13)
+    plt.savefig(os.path.join(save_path, 'avg_pr.png'), bbox_inches='tight')
+    plt.show()
+
+
 def clear_directory(path):
     """如果目录存在，清除其下的所有文件；如果不存在，创建目录"""
     if os.path.exists(path):
@@ -386,12 +446,14 @@ def main(args, folder_name):
 
     # plot_multiclass_roc(all_labels, all_scores, args.num_classes)
     all_fpr, mean_tpr, macro_auc=compute_macro_avg_roc_auc(all_labels, all_scores, args.num_classes)
+    all_recall, mean_precision, macro_avg_precision = compute_macro_avg_pr_curve(all_labels, all_scores,
+                                                                                 args.num_classes)
     # 保存混淆矩阵图像和数据,可替换confusion.overall_summary_micro()
     confusion.plot(save_path=os.path.join(args.confusion_figure_path, f"{folder_name}.png"))
     save_confusion_matrix(confusion.get_matrix(), os.path.join(args.confusion_matrix_path, f"{folder_name}.txt"))
     save_scores(confusion.overall_summary_macro(), os.path.join(args.scores_path, "scores.txt"), folder_name)
 
-    return all_fpr, mean_tpr, macro_auc
+    return all_fpr, mean_tpr, macro_auc, all_recall, mean_precision, macro_avg_precision
 
 
 if __name__ == '__main__':
@@ -408,6 +470,7 @@ if __name__ == '__main__':
     parser.add_argument('--confusion-matrix-path', type=str, default='./runs/confusion_matrix')
     parser.add_argument('--confusion-figure-path', type=str, default='./runs/confusion_figure')
     parser.add_argument('--roc-figure-path', type=str, default='./runs/roc_figure')
+    parser.add_argument('--pr-figure-path', type=str, default='./runs/pr_figure')
     parser.add_argument('--scores-path', type=str, default='./runs/scores')
 
     parser.add_argument('--device', default='cuda:0', help='device id (i.e. 0 or 0,1 or cpu)')
@@ -423,18 +486,24 @@ if __name__ == '__main__':
     all_fprs = []
     all_mean_tprs = []
     all_macro_aucs = []
+    all_recalls = []
+    all_mean_precisions = []
+    all_macro_avg_precisions = []
     all_folders = []
 
     # 遍历Range_Base_HI文件夹下的所有文件夹
     for folder in os.listdir(opt.base_data_path):
         if os.path.isdir(os.path.join(opt.base_data_path, folder)):
-            fpr, mean_tpr, macro_auc = main(opt, folder)
+            fpr, mean_tpr, macro_auc, recall, mean_precision, macro_avg_precision= main(opt, folder)
 
             all_fprs.append(fpr)
             all_mean_tprs.append(mean_tpr)
             all_macro_aucs.append(macro_auc)
+            all_recalls.append(recall)
+            all_mean_precisions.append(mean_precision)
+            all_macro_avg_precisions.append(macro_avg_precision)
             all_folders.append(folder)
 
+    plot_and_save_pr_curve(all_recalls, all_mean_precisions, all_macro_avg_precisions, all_folders, opt.pr_figure_path)
     plot_and_save_roc_curve(all_fprs, all_mean_tprs, all_macro_aucs, all_folders, opt.roc_figure_path)
-
 
