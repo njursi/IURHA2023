@@ -28,6 +28,40 @@ class CombinedModel(torch.nn.Module):
         _, x = self.model(x)
         return self.mlp(x)
 
+def plot_multiclass_pr(all_labels, all_scores, num_classes):
+    """
+    Plot PR curves for multiclass classification.
+
+    Args:
+        all_labels: ground truth labels.
+        all_scores: predicted scores for each class.
+        num_classes: total number of classes.
+    """
+    precision = dict()
+    recall = dict()
+    average_precision = dict()
+
+    all_labels_onehot = np.eye(num_classes)[all_labels]
+
+    # Compute PR curve and PR area for each class
+    for i in range(num_classes):
+        precision[i], recall[i], _ = precision_recall_curve(all_labels_onehot[:, i], np.array(all_scores)[:, i])
+        average_precision[i] = average_precision_score(all_labels_onehot[:, i], np.array(all_scores)[:, i])
+
+    # Plot all PR curves
+    plt.figure(figsize=(7, 7))
+    colors = cycle(['aqua', 'darkorange', 'cornflowerblue'])
+    for i, color in zip(range(num_classes), colors):
+        plt.plot(recall[i], precision[i], color=color, lw=2,
+                 label='PR curve of class {0} (area = {1:0.2f})'
+                       ''.format(i, average_precision[i]))
+
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.title('Extension of Precision-Recall curve to multi-class')
+    plt.legend(loc="upper right")
+    plt.grid(True)
+    plt.show()
 
 def plot_multiclass_roc(all_labels, all_scores, num_classes):
     """
