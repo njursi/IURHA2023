@@ -3,7 +3,8 @@
 
 <div align="center">
 
-![image](https://github.com/njursi/IURHA2023/assets/126329742/8b0514be-d148-4bb8-a15b-f333cf6f94c6)
+![image](https://github.com/njursi/IURHA2023/assets/126329742/32271cb5-5bea-405a-81c7-4eeec3b1e0a6)
+
 
 </div>
 
