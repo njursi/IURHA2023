@@ -2,7 +2,8 @@
 ## Datasets for Human Action or Identity Recognition via IR-UWB Radar
 
 <div align="center">
-![图片1](https://github.com/njursi/IURHA2023/assets/126329742/791236fe-53c3-40a6-8c0b-234f49221d98)
+
+![image](https://github.com/njursi/IURHA2023/assets/126329742/8b0514be-d148-4bb8-a15b-f333cf6f94c6)
 
 </div>
 
