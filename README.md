@@ -9,7 +9,7 @@
 </div>
 
 ## This dataset will be continuously improved based on reader feedback, and valuable comments are welcome！
-#### Google Drive backup link：https://drive.google.com/drive/folders/1YBePlVu4GDjYEUfPx38MR_RACepbmU4W?usp=drive_link
+#### Google Drive backup link（same with github）：https://drive.google.com/drive/folders/1YBePlVu4GDjYEUfPx38MR_RACepbmU4W?usp=drive_link
 ![image](https://github.com/njursi/IURHA2023/assets/126329742/a5a5acc5-d163-4888-9d5b-a335cd9f5251)
 
 
